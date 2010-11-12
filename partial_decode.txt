@@ -1,0 +1,53 @@
+Here's the header data blob:
+
+554e 4952 4153 5400-0000 0001 1801 0004
+0000 0001 0000 0000-0000 13ec 0000 19c8
+0000 0258 0000 0000-0000 0000 ff80 c780
+01
+// raster data starts here -- BYTE ALIGNED
+7f ffff ff7f ffff-ff7f ffff ff7f ffff
+
+554e 4952 4153 5400     = "UNIRAST\0"
+0000 0001               = 1 page?
+1801                    = 1645
+0004                    = 4
+
+// page header
+0000 0001               = 1 copy?
+0000 0000               = 0
+0000 13ec               = 5100 = page width
+0000 19c8               = 6600 = page height
+0000 0258               = 600 = dots per inch
+
+Another one, for a 17-page file (which reported 0 pages up front, supposedly)
+
+554e 4952 4153 5400-0000 0011 1801 0004
+0000 0001 0000 0000-0000 13ec 0000 19c8
+0000 0258 0000 0000-0000 0000 ff80 9b80
+017f ffff ff7f ffff-ff7f ffff ff7f ffff
+
+554e 4952 4153 5400     = "UNIRAST\0"
+0000 0011               = 17 pages
+
+// page header
+1801
+0004
+0000 0001               = ?
+0000 0000
+0000 13ec               = 5100 = page width
+0000 19c8               = 6600 = page height
+0000 0258               = 600 = dots per inch
+0000 0000
+0000 0000
+ff80 9b80
+01
+
+// raster data
+
+...
+
+// page footer ?
+8080 8080
+ff80 6f80
+
+// next page header is here, etc.
