@@ -7,17 +7,22 @@ Here's the header data blob:
 // raster data starts here -- BYTE ALIGNED
 7f ffff ff7f ffff-ff7f ffff ff7f ffff
 
+// file header (12 bytes)
 554e 4952 4153 5400     = "UNIRAST\0"
-0000 0001               = 1 page?
-1801                    = 1645
-0004                    = 4
+0000 0001               = 1 page
 
-// page header
+// page header (32 bytes)
+18                      = 24bpp
+01                      = color space 1
+00                      = duplex mode (no)
+04                      = quality 4
 0000 0001               = 1 copy?
 0000 0000               = 0
 0000 13ec               = 5100 = page width
 0000 19c8               = 6600 = page height
 0000 0258               = 600 = dots per inch
+0000 0000
+0000 0000
 
 Another one, for a 17-page file (which reported 0 pages up front, supposedly)
 
@@ -29,10 +34,10 @@ Another one, for a 17-page file (which reported 0 pages up front, supposedly)
 554e 4952 4153 5400     = "UNIRAST\0"
 0000 0011               = 17 pages
 
-// page header
+// page header (32 bytes)
 0:  18                  = bits per pixel
 1:  01                  = color space
-2:  00                  = duplex mode ?
+2:  00                  = duplex mode
 3:  04                  = print quality
 4:  0000 0001
 8:  0000 0000
@@ -43,7 +48,10 @@ C:  0000 13ec           = 5100 = page width
 1C: 0000 0000
 
 // non-header info ?
-20: ff80 9b80
+20: ff                  = line repeat code
+21: 80                  = PackBits code
+22: 9b                  = line repeat code
+23: 80                  = PackBits code
 24: 01
 
 // raster data
