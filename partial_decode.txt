@@ -13,16 +13,16 @@ Here's the header data blob:
 
 // page header (32 bytes)
 18                      = 24bpp
-01                      = color space 1
+01                      = color space 1 (values 1-6 mean different things)
 00                      = duplex mode (no)
 04                      = quality 4
-0000 0001               = 1 copy?
-0000 0000               = 0
+0000 0001               = unknown
+0000 0000               = unknown
 0000 13ec               = 5100 = page width
 0000 19c8               = 6600 = page height
 0000 0258               = 600 = dots per inch
-0000 0000
-0000 0000
+0000 0000				= unknown
+0000 0000				= unknown
 
 Another one, for a 17-page file (which reported 0 pages up front, supposedly)
 
@@ -47,19 +47,41 @@ C:  0000 13ec           = 5100 = page width
 18: 0000 0000
 1C: 0000 0000
 
-// non-header info ?
-20: ff                  = line repeat code
-21: 80                  = PackBits code
+// raster data
+20: ff                  = line repeat code -- how many times this line repeats. Unsigned byte.
+21: 80                  = PackBits code (see below)
 22: 9b                  = line repeat code
 23: 80                  = PackBits code
-24: 01
+24: 01					= line repeat code
 
-// raster data
+etc...
 
-...
+UNIRAST PackBits Algorithm:
+===========================
 
-// page footer ?
-8080 8080
-ff80 6f80
+This is sort of an inverted version of the TIFF PackBits algorithm.
+Code is a signed byte, with three interpretations:
 
-// next page header is here, etc.
+switch ( code )
+{
+	case -128:	// 0x80
+		FillRestOfLineWithFillByte();
+		break;
+		
+	case 0..127:	// copy single pixel and repeat it n+1 times
+		int n = ((int)code)+1;
+		uint8_t pixel[pixel_size];
+		ReadData(&pixel, pixel_size);
+		while ( n-- > 0 )
+		{
+			AddPixelToLine( pixel );
+		}
+		break;
+		
+	case -128..-1:	// copy the following (-n)+1 pixels verbatim
+		int n = (-(int)code)+1;
+		ReadData(linePtr, n * pixel_size);
+		break;
+}
+
+In TIFF, the 0x80 byte is a NOP used for padding, and the -128..-1 and 0..127 cases are the other way around. I saw some weird results when I tried that...
